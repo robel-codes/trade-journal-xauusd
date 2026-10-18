@@ -1,0 +1,27 @@
+# Local stack. Not exercised in the build environment (no Docker daemon there); see README.
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: xau
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-xau}
+      POSTGRES_DB: xau_lab
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck: { test: ["CMD-SHELL", "pg_isready -U xau"], interval: 5s, retries: 10 }
+    ports: ["5432:5432"]
+  api:
+    build: ./backend
+    environment:
+      XAU_DATABASE_URL: postgresql+psycopg://xau:${POSTGRES_PASSWORD:-xau}@db:5432/xau_lab
+      XAU_SECRET_KEY: ${XAU_SECRET_KEY:?set XAU_SECRET_KEY in .env}
+      XAU_COOKIE_SECURE: ${XAU_COOKIE_SECURE:-false}
+    depends_on: { db: { condition: service_healthy } }
+    ports: ["8000:8000"]
+  web:
+    build: ./frontend
+    environment:
+      API_URL: http://api:8000
+    depends_on: [api]
+    ports: ["3000:3000"]
+volumes:
+  pgdata:

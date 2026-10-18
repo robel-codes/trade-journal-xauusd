@@ -1,0 +1,13 @@
+//@version=5
+strategy("HTF Bias Leak", overlay=true, calc_on_every_tick=true)
+dailyClose = request.security(syminfo.tickerid, "D", close, lookahead=barmerge.lookahead_on)
+dailyPrev = request.security(syminfo.tickerid, "D", close[1], lookahead=barmerge.lookahead_on)
+h4 = request.security(syminfo.tickerid, "240", ta.ema(close, 50))
+dxy = request.security("TVC:DXY", "60", close)
+varip int ticks = 0
+ticks += 1
+ph = ta.pivothigh(high, 5, 5)
+if close > dailyClose and barstate.isconfirmed
+    strategy.entry("L", strategy.long)
+strategy.exit("T", "L", profit=300, loss=150, trail_points=200, trail_offset=50)
+strategy.order("hedge", strategy.short, 1)

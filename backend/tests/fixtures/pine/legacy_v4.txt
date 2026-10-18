@@ -1,0 +1,8 @@
+//@version=4
+strategy("Old MACD", overlay=true)
+fast = input(12, title="Fast", type=input.integer)
+[m, s, h] = macd(close, fast, 26, 9)
+if crossover(m, s)
+    strategy.entry("L", true)
+if crossunder(m, s)
+    strategy.close("L")

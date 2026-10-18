@@ -1,0 +1,7 @@
+//@version=5
+indicator("RSI Zones", overlay=false)
+len = input(14, "Length")
+r = ta.rsi(close, len)
+plot(r)
+hline(70)
+hline(30)

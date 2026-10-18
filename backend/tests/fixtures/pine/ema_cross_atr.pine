@@ -1,0 +1,35 @@
+//@version=5
+// EMA crossover with ATR stop, London/NY only
+strategy("XAU EMA Cross ATR", overlay=true, initial_capital=10000, default_qty_type=strategy.percent_of_equity, default_qty_value=10, commission_type=strategy.commission.cash_per_contract, commission_value=0.07, slippage=2, pyramiding=1)
+
+fastLen = input.int(9, "Fast EMA", minval=1, group="Trend")
+slowLen = input.int(21, title="Slow EMA", minval=2, group="Trend")
+atrLen  = input.int(14, "ATR Length")
+atrMult = input.float(1.5, "ATR Stop Mult", step=0.1)
+rr      = input.float(2.0, "Reward:Risk")
+sess    = input.session("0700-1600", "Trading Session")
+src     = input.source(close, "Source")
+
+inSession = not na(time(timeframe.period, sess, "Europe/London"))
+fast = ta.ema(src, fastLen)
+slow = ta.ema(src, slowLen)
+atr = ta.atr(atrLen)
+
+longCond = ta.crossover(fast, slow) and inSession
+shortCond = ta.crossunder(fast, slow) and inSession  // "short" signal
+
+if longCond
+    strategy.entry("L", strategy.long)
+if shortCond
+    strategy.entry("S", strategy.short)
+
+if strategy.position_size > 0
+    stop = strategy.position_avg_price - atr * atrMult
+    strategy.exit("XL", "L", stop=stop, limit=strategy.position_avg_price + atr * atrMult * rr)
+if strategy.position_size < 0
+    stop = strategy.position_avg_price + atr * atrMult
+    strategy.exit("XS", "S", stop=stop, limit=strategy.position_avg_price - atr * atrMult * rr)
+
+plot(fast, color=color.teal)
+plot(slow, color=color.orange)
+alertcondition(longCond, "Long", "EMA cross up")
