@@ -16,6 +16,8 @@ XAUUSD. It is built for one trader first, with user scoping throughout so more u
 
 ## Run locally
 
+**New to this? Follow the step-by-step guide in [docs/SETUP.md](docs/SETUP.md)** (macOS, Windows and Linux). The short version for developers:
+
 Requirements: Python 3.13 with [uv](https://docs.astral.sh/uv/), Node 22 with pnpm, PostgreSQL 16.
 
 ```bash
